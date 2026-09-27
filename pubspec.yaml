@@ -1,0 +1,15 @@
+name: allo_maghnia
+description: Application Allo Maghnia
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.5.0
+  url_launcher: ^6.3.2
+  geolocator: ^14.0.2
+
+flutter:
+  uses-material-design: true
