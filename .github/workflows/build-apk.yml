@@ -1,0 +1,53 @@
+name: Build Allo Maghnia APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Creer la structure Android Flutter
+        run: |
+          flutter create --platforms=android --org com.allomaghnia --project-name allo_maghnia build_project
+          cp pubspec.yaml build_project/pubspec.yaml
+          cp lib/main.dart build_project/lib/main.dart
+
+      - name: Ajouter les autorisations GPS Android
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build_project/android/app/src/main/AndroidManifest.xml')
+          s = p.read_text()
+          perms = ('    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n'
+                   '    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n')
+          marker = '<application'
+          if 'android.permission.ACCESS_FINE_LOCATION' not in s:
+              s = s.replace(marker, perms + marker, 1)
+          p.write_text(s)
+          PY
+
+      - name: Recuperer les dependances
+        working-directory: build_project
+        run: flutter pub get
+
+      - name: Construire l'APK
+        working-directory: build_project
+        run: flutter build apk --release
+
+      - name: Publier l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: allo-maghnia-apk
+          path: build_project/build/app/outputs/flutter-apk/app-release.apk
