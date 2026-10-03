@@ -24,16 +24,19 @@ jobs:
           cp pubspec.yaml build_project/pubspec.yaml
           cp lib/main.dart build_project/lib/main.dart
 
-      - name: Ajouter les autorisations GPS Android
+      - name: Ajouter les autorisations Internet et GPS Android
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('build_project/android/app/src/main/AndroidManifest.xml')
           s = p.read_text()
-          perms = ('    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n'
-                   '    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n')
+          perms = (
+              '    <uses-permission android:name="android.permission.INTERNET" />\n'
+              '    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n'
+              '    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n'
+          )
           marker = '<application'
-          if 'android.permission.ACCESS_FINE_LOCATION' not in s:
+          if 'android.permission.INTERNET' not in s:
               s = s.replace(marker, perms + marker, 1)
           p.write_text(s)
           PY
